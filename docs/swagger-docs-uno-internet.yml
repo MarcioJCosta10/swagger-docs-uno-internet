@@ -22,7 +22,7 @@ tags:
   - name: Ordem de Serviço
     description: Ordens de serviço
   - name: Desbloqueio confiança
-    description: Desbloqueios
+    description: Desbloquear Conexão
   - name: Blip Router
     description: API Blip
   - name: Utilidades
