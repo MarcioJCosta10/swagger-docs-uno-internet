@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: API Uno Internet & HubSoft
-  description: Integração HubSoft e Blip, incluindo endpoints de cliente, financeiro, ordens de serviço, desbloqueios, Router e mensageria.
+  description: Integração HubSoft e Blip, incluindo endpoints de cliente, financeiro, ordens de serviço, desbloqueios e Router/Desk.
   version: "1.0.0"
 
 servers:
@@ -56,9 +56,7 @@ paths:
           required: true
           schema:
             type: string
-            enum:
-              - cpf_cnpj
-              - id_cliente_servico
+            enum: [cpf_cnpj, id_cliente_servico]
         - name: termo_busca
           in: query
           required: true
@@ -103,10 +101,6 @@ paths:
       responses:
         '200':
           description: Cliente encontrado
-        '400':
-          description: Parâmetros inválidos
-        '404':
-          description: Cliente não encontrado
       security:
         - ApiKeyHubSoft: []
 
@@ -209,8 +203,53 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
+            examples:
+              GetAccount:
+                summary: Buscar conta WhatsApp do contato
+                value:
+                  id: "{{random.guid}}"
+                  to: "postmaster@wa.gw.msging.net"
+                  method: "get"
+                  uri: "lime://wa.gw.msging.net/accounts/{{phoneNumberContact}}"
+              UpdatedContact:
+                summary: Atualizar contato no Router
+                value:
+                  id: "{{random.guid}}"
+                  to: "postmaster@msging.net"
+                  method: "get"
+                  uri: "/contexts/{{contact.identity}}/updatedContactUnoInternet"
+              ScheduleMessage:
+                summary: Agendar mensagem interativa
+                value:
+                  id: "{{randomGuidScheduleOne}}"
+                  to: "postmaster@scheduler.msging.net"
+                  method: "set"
+                  uri: "/schedules"
+                  type: "application/vnd.iris.schedule+json"
+                  resource:
+                    message:
+                      id: "{{randomGuidScheduleTwo}}"
+                      to: "{{tunnel.originator}}"
+                      type: "application/json"
+                      content:
+                        recipient_type: "individual"
+                        type: "interactive"
+                        interactive:
+                          type: "button"
+                          body:
+                            text: "Oi *{{contact.name}}*, bom dia!\n\nNosso *time* já está *disponível!*\n\nQuer prosseguir com seu atendimento?"
+                          action:
+                            buttons:
+                              - type: "reply"
+                                reply:
+                                  id: "ID 1.1"
+                                  title: "Sim, Vamos lá!🥳"
+                              - type: "reply"
+                                reply:
+                                  id: "ID 1.2"
+                                  title: "Não, obrigado!😉"
+                    when: "{{dataHoraSchedule}}"
+                    name: "Agendamento de mensagem"
       responses:
         '200':
           description: Comando executado
@@ -226,8 +265,26 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
+            example:
+              id: "{{random.guid}}"
+              to: "5511999999999@wa.gw.msging.net"
+              type: "application/json"
+              content:
+                type: "template"
+                template:
+                  name: "test_acompanhamento_chamadas"
+                  language:
+                    code: "pt_BR"
+                    policy: "deterministic"
+                  components:
+                    - type: "body"
+                      parameters:
+                        - type: "text"
+                          text: "Process responseAllBill"
+                        - type: "text"
+                          text: "Status: IC.1.0.0.1 - validate if has debit | Contato: {{contact.identity}}"
+                        - type: "text"
+                          text: "Response: {{responseAllBill}}"
       responses:
         '200':
           description: Mensagem enviada
