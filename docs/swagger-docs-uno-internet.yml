@@ -16,15 +16,15 @@ servers:
 
 tags:
   - name: Cliente HubSoft
-    description: Consultas de clientes
+    description: Clientes
   - name: Financeiro HubSoft
-    description: Consultas financeiras
+    description: Fnanceiras
   - name: Ordem de Serviço HubSoft
-    description: Consultas de ordens de serviço
+    description: Ordens de serviço
   - name: Desbloqueio HubSoft
-    description: Consultas de desbloqueios de confiança
+    description: Desbloqueios
   - name: Blip Router
-    description: Endpoints para mensageria e Router
+    description: Endpoints Blip
   - name: Utilidades
     description: APIs externas (ViaCEP, Check-Name)
 
