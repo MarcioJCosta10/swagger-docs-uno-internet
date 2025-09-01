@@ -1,14 +1,93 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  title: API Uno Internet
-  description: Documentação oficial da API Uno Internet Blip
-  version: 1.0.0
+  title: HubSoft API - Consulta Cliente
+  description: Consulta informações de clientes na plataforma HubSoft, incluindo desbloqueios.
+  version: "1.0.0"
+
 servers:
-  - url: https://api.3mservicos.hubsoft.com.br
+  - url: "{{resource.urlHubSoft}}"
+    description: Servidor de integração HubSoft
+
+tags:
+  - name: Cliente
+    description: Operações relacionadas a clientes
+
 paths:
-  /api/v1/integracao/cliente?busca=cpf_cnpj&termo_busca={{validateCpf@value}}&incluir_desbloqueios=sim:
+  /api/v1/integracao/cliente:
     get:
-      summary: Lista os dados do clientes por cpf ou cnpj
+      tags:
+        - Cliente
+      summary: Buscar cliente pelo CPF ou CNPJ
+      description: Retorna informações detalhadas do cliente, incluindo desbloqueios.
+      parameters:
+        - name: busca
+          in: query
+          description: Tipo de busca
+          required: true
+          schema:
+            type: string
+            enum:
+              - cpf_cnpj
+        - name: termo_busca
+          in: query
+          description: CPF ou CNPJ do cliente
+          required: true
+          schema:
+            type: string
+            example: "12345678901"
+        - name: incluir_desbloqueios
+          in: query
+          description: Incluir informações de desbloqueios
+          required: false
+          schema:
+            type: string
+            enum:
+              - sim
+              - nao
+            default: sim
       responses:
         '200':
-          description: Lista retornada com sucesso
+          description: Cliente encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_cliente:
+                    type: string
+                    example: "98765"
+                  nome:
+                    type: string
+                    example: "João da Silva"
+                  cpf_cnpj:
+                    type: string
+                    example: "12345678901"
+                  desbloqueios:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tipo:
+                          type: string
+                          example: "Bloqueio Financeiro"
+                        data:
+                          type: string
+                          format: date-time
+                          example: "2025-09-01T14:30:00Z"
+        '400':
+          description: Parâmetros inválidos
+        '404':
+          description: Cliente não encontrado
+        '500':
+          description: Erro interno do servidor
+      security:
+        - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token de autenticação HubSoft ({{resource.authHubSoft}})
+
