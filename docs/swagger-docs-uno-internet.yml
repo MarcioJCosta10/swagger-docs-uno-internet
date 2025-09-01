@@ -108,7 +108,7 @@ paths:
     get:
       tags:
         - Financeiro HubSoft
-      summary: Buscar informações financeiras do cliente
+      summary: Informações financeiras
       parameters:
         - name: busca
           in: query
@@ -141,7 +141,7 @@ paths:
             enum: [data_vencimento, data_cadastro]
       responses:
         '200':
-          description: Dados financeiros retornados
+          description: Dados retornados
       security:
         - ApiKeyHubSoft: []
 
@@ -149,7 +149,7 @@ paths:
     get:
       tags:
         - Ordem de Serviço HubSoft
-      summary: Consultar ordens de serviço do cliente
+      summary: Ordens de serviço
       parameters:
         - name: busca
           in: query
@@ -184,7 +184,7 @@ paths:
     get:
       tags:
         - Desbloqueio HubSoft
-      summary: Consultar desbloqueios de confiança
+      summary: Desbloqueio confiança
       responses:
         '200':
           description: Desbloqueios retornados
@@ -198,14 +198,14 @@ paths:
     post:
       tags:
         - Blip Router
-      summary: Executar comandos no Router/Desk/Scheduler
+      summary: Comandos no Router
       requestBody:
         required: true
         content:
           application/json:
             examples:
               GetAccount:
-                summary: Buscar conta WhatsApp do contato
+                summary: Buscar contato
                 value:
                   id: "{{random.guid}}"
                   to: "postmaster@wa.gw.msging.net"
@@ -260,7 +260,7 @@ paths:
     post:
       tags:
         - Blip Router
-      summary: Enviar mensagem via WhatsApp
+      summary: Enviar mensagem
       requestBody:
         required: true
         content:
@@ -298,7 +298,7 @@ paths:
     get:
       tags:
         - Utilidades
-      summary: Consulta endereço pelo CEP
+      summary: Consulta CEP
       parameters:
         - name: cep
           in: path
@@ -313,7 +313,7 @@ paths:
     get:
       tags:
         - Utilidades
-      summary: Verificar nome via Check-Name API
+      summary: Check-Name API
       parameters:
         - name: nameToCallApiName
           in: path
