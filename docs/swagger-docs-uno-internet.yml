@@ -1,93 +1,269 @@
 openapi: 3.0.3
 info:
-  title: HubSoft API - Consulta Cliente
-  description: Consulta informações de clientes na plataforma HubSoft, incluindo desbloqueios.
+  title: API Uno Internet & HubSoft
+  description: Integração HubSoft e Blip, incluindo endpoints de cliente, financeiro, ordens de serviço, desbloqueios, Router e mensageria.
   version: "1.0.0"
 
 servers:
   - url: "https://api.3mservicos.hubsoft.com.br"
-    description: Servidor de integração HubSoft
+    description: Servidor HubSoft
+  - url: "https://unointernet.http.msging.net"
+    description: Servidor Blip Router
+  - url: "https://viacep.com.br/ws"
+    description: API ViaCEP
+  - url: "https://check-name.herokuapp.com"
+    description: API Check-Name
 
 tags:
-  - name: Cliente
-    description: Operações relacionadas a clientes
+  - name: Cliente HubSoft
+    description: Consultas de clientes
+  - name: Financeiro HubSoft
+    description: Consultas financeiras
+  - name: Ordem de Serviço HubSoft
+    description: Consultas de ordens de serviço
+  - name: Desbloqueio HubSoft
+    description: Consultas de desbloqueios de confiança
+  - name: Blip Router
+    description: Endpoints para mensageria e Router
+  - name: Utilidades
+    description: APIs externas (ViaCEP, Check-Name)
+
+components:
+  securitySchemes:
+    ApiKeyHubSoft:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token HubSoft ({{resource.authHubSoft}})
+    ApiKeyRouter:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token Router ({{resource.authRouter}})
 
 paths:
+  # =========================
+  # HubSoft - Cliente
+  # =========================
   /api/v1/integracao/cliente:
     get:
       tags:
-        - Cliente
-      summary: Buscar cliente pelo CPF ou CNPJ
-      description: Retorna informações detalhadas do cliente, incluindo desbloqueios.
+        - Cliente HubSoft
+      summary: Buscar cliente pelo CPF/CNPJ ou ID
       parameters:
         - name: busca
           in: query
-          description: Tipo de busca
           required: true
           schema:
             type: string
             enum:
               - cpf_cnpj
+              - id_cliente_servico
         - name: termo_busca
           in: query
-          description: CPF ou CNPJ do cliente
           required: true
           schema:
             type: string
-            example: "12345678901"
-        - name: incluir_desbloqueios
+        - name: inativo
           in: query
-          description: Incluir informações de desbloqueios
           required: false
           schema:
             type: string
-            enum:
-              - sim
-              - nao
-            default: sim
+            enum: [sim, nao]
+        - name: cancelado
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [sim, nao]
+        - name: ultima_conexao
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [sim, nao]
+        - name: data_inicio
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: data_fim
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: tipo_data
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [data_vencimento, data_cadastro]
       responses:
         '200':
           description: Cliente encontrado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id_cliente:
-                    type: string
-                    example: "98765"
-                  nome:
-                    type: string
-                    example: "João da Silva"
-                  cpf_cnpj:
-                    type: string
-                    example: "12345678901"
-                  desbloqueios:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        tipo:
-                          type: string
-                          example: "Bloqueio Financeiro"
-                        data:
-                          type: string
-                          format: date-time
-                          example: "2025-09-01T14:30:00Z"
         '400':
           description: Parâmetros inválidos
         '404':
           description: Cliente não encontrado
-        '500':
-          description: Erro interno do servidor
       security:
-        - ApiKeyAuth: []
+        - ApiKeyHubSoft: []
 
-components:
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: Authorization
-      description: Token de autenticação HubSoft ({{resource.authHubSoft}})
+  /api/v1/integracao/cliente/financeiro:
+    get:
+      tags:
+        - Financeiro HubSoft
+      summary: Buscar informações financeiras do cliente
+      parameters:
+        - name: busca
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [id_cliente_servico]
+        - name: termo_busca
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: data_inicio
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: data_fim
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: tipo_data
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [data_vencimento, data_cadastro]
+      responses:
+        '200':
+          description: Dados financeiros retornados
+      security:
+        - ApiKeyHubSoft: []
+
+  /api/v1/integracao/cliente/ordem_servico:
+    get:
+      tags:
+        - Ordem de Serviço HubSoft
+      summary: Consultar ordens de serviço do cliente
+      parameters:
+        - name: busca
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [id_cliente_servico]
+        - name: termo_busca
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: data_inicio
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: data_fim
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Ordens de serviço retornadas
+      security:
+        - ApiKeyHubSoft: []
+
+  /api/v1/integracao/cliente/desbloqueio_confianca:
+    get:
+      tags:
+        - Desbloqueio HubSoft
+      summary: Consultar desbloqueios de confiança
+      responses:
+        '200':
+          description: Desbloqueios retornados
+      security:
+        - ApiKeyHubSoft: []
+
+  # =========================
+  # Blip Router - Commands
+  # =========================
+  /commands:
+    post:
+      tags:
+        - Blip Router
+      summary: Executar comandos no Router/Desk/Scheduler
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Comando executado
+      security:
+        - ApiKeyRouter: []
+
+  /messages:
+    post:
+      tags:
+        - Blip Router
+      summary: Enviar mensagem via WhatsApp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Mensagem enviada
+      security:
+        - ApiKeyRouter: []
+
+  # =========================
+  # Utilidades
+  # =========================
+  /ws/{cep}/json/:
+    get:
+      tags:
+        - Utilidades
+      summary: Consulta endereço pelo CEP
+      parameters:
+        - name: cep
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Endereço retornado
+
+  /verify/{nameToCallApiName}:
+    get:
+      tags:
+        - Utilidades
+      summary: Verificar nome via Check-Name API
+      parameters:
+        - name: nameToCallApiName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resultado da verificação
 
