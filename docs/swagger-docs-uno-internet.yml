@@ -1,0 +1,14 @@
+openapi: 3.0.0
+info:
+  title: API Uno Internet
+  description: Documentação oficial da API Uno Internet Blip
+  version: 1.0.0
+servers:
+  - url: https://api.3mservicos.hubsoft.com.br
+paths:
+  /api/v1/integracao/cliente?busca=cpf_cnpj&termo_busca={{validateCpf@value}}&incluir_desbloqueios=sim:
+    get:
+      summary: Lista os dados do clientes por cpf ou cnpj
+      responses:
+        '200':
+          description: Lista retornada com sucesso
